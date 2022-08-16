@@ -1,0 +1,185 @@
+How Install IBSng On CentsOs 7 64.bit ?
+
+Requirement Server :
+
+OS : CentsOS 7 64.bit
+
+RAM : 1G
+CPU : 1C
+HDD : 25G
+
+_______________________________
+
+# yum install httpd php postgresql postgresql-server postgresql-python perl unzip wget nano -y
+# yum install bzip2
+
+Download IBsng :
+
+# wget https://master.dl.sourceforge.net/project/ibsng/IBSng-A1.24.tar.bz2
+
+# tar -xvjf IBSng-A1.24.tar.bz2 -C /usr/local
+
+_______________________________
+
+Active Database :
+
+# service postgresql initdb
+# service postgresql start
+
+# nano  /var/lib/pgsql/data/pg_hba.conf
+
+Add This To first line :
+
+local  IBSng   ibs            trust
+
+_______________________________
+
+Make New Database : 
+
+# su - postgres
+# createdb IBSng
+# createuser ibs
+# createlang plpgsql IBSng
+# exit
+# service postgresql restart
+# /./usr/local/IBSng/scripts/setup.py
+
+_______________________________
+
+Please Write This Number Step By Step :
+
+1 Install
+2 Test DB Connection and Continue
+2 Compile Configuration and Continue
+1 Import Tables and Continue
+Enter System password
+1 Copy ibs.conf to '/etc/httpd/conf.d'
+2 Chown apache directories to 'apache'
+5 Continue
+1 Copy logrotate Conf to /etc/logrotate.d
+3 Continue
+1 Copy Redhat init file to /etc/init.d
+2 Set IBSng to start on reboot
+b Back to main menu
+x Exit
+
+_______________________________
+
+Edit httpd :
+
+# nano /etc/httpd/conf/httpd.conf
+
+Add This To First Line :
+
+ServerName 127.0.0.1
+<Directory "/usr/local/IBSng/interface/IBSng">
+    AllowOverride None
+    Options None
+    Require all granted
+</Directory>
+_______________________________
+
+# nano /usr/local/IBSng/core/lib/IPy.py
+
+Add This To First Line :
+#coding:utf-8
+_______________________________
+
+# nano /usr/local/IBSng/core/lib/mschap/des_c.py
+
+Add This To First Line :
+#coding:utf-8
+_______________________________
+
+# nano /usr/local/IBSng/interface/IBSng/inc/error.php
+
+Please Delete 9 Line From END And Replace This Code :
+
+$timeArr="IRDT/4.0/DST";
+#    $timeStr="{$timeArr["tm_year"]}/{$timeArr["tm_mon"]}/{$timeArr["tm_mday"]} {$timeArr["tm_hour"]}:{$timeArr["tm_min"]}";
+    $phperr=isset($php_errormsg)?$php_errormsg:"";
+#    fwrite($fh,"{$timeStr} {$msg} {$phperr}\n");
+    return;
+
+}
+
+?>
+_______________________________
+
+# nano /usr/local/IBSng/core/server/xmlrpcserver.py
+
+Add This To First Line :
+
+from xmlrpclib import Marshaller
+from decimal import Decimal
+
+
+def dump_decimal(self,value, write):
+    write("<value><double>")
+    write(str(value))
+    write("</double></value>\n")
+
+
+Marshaller.dispatch[Decimal] = dump_decimal
+
+_______________________________
+
+# nano /usr/local/IBSng/core/admin/admin.py
+
+Push Ctrl+W And Find This Line :
+self.deposit+=deposit_change
+
+Ctrl+W
+
+Change And Replace To :
+
+self.deposit+=float(deposit_change)
+
+_______________________________
+
+Please Open TCP Port :
+
+#sudo iptables -A INPUT -p tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+#sudo iptables -A OUTPUT -p tcp --sport 1812 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+#sudo iptables -A INPUT -p tcp --dport 1813 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+
+_______________________________
+
+Edit SELinux Config :
+
+# nano /etc/selinux/config
+
+SELINUX=disabled
+
+_______________________________
+
+Run IBSng :
+
+chkconfig httpd on
+chkconfig postgresql on
+chkconfig IBSng on
+service httpd restart
+service postgresql restart
+setenforce 0
+service IBSng start
+
+_______________________________
+
+Run : http://serverip /IBSng/admin
+
+
+
+help:
+https://www.novinhost.org/client/index.php/knowledgebase/78/%D8%A2%D9%85%D9%88%D8%B2%D8%B4-%DA%A9%D8%A7%D9%86%D9%81%DB%8C%DA%AF-Cisco-AnyConnect.html
+
+
+https://forums.irserv.ir/Thread-%D8%A2%D9%85%D9%88%D8%B2%D8%B4-%D9%88-%DA%A9%D8%A7%D9%86%D9%81%DB%8C%DA%AF-%D8%B3%D8%B1%D9%88%D8%B1-%D8%B3%DB%8C%D8%B3%DA%A9%D9%88-anyconnect--4828
+
+
+https://blog.1bash.ir/2016/09/install-ocserv-on-centos-6-anyconnect.html
+
+https://gitlab.framltd.se/snippets/18
+
+
+
+
