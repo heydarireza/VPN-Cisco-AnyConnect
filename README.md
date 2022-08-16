@@ -416,3 +416,33 @@ then go to the IBSng and login to the admin web page
 
 ![N|Solid](images/01.png)
 
+and add New RAS
+
+![N|Solid](images/02.png)
+
+
+after that we need to add Charge 
+![N|Solid](images/03.png)
+
+than add Internet Charge Rule :
+![N|Solid](images/04.png)
+
+then we need to add Groups
+
+![N|Solid](images/05.png)
+
+
+and finally add user 
+![N|Solid](images/06.png)
+![N|Solid](images/07.png)
+
+
+
+
+
+
+
+
+
+
+
